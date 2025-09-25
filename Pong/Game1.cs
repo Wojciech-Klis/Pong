@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Pong
 {
@@ -9,20 +11,28 @@ namespace Pong
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _paddle1, _paddle2, _ball;
+        private SpriteFont _score;
+        private int _blueScore = 0;
+        private int _redScore = 0;
         private int _paddle1XPos;
         private int _paddle1YPos;
         private int _paddle1Width = 50;
-        private int _paddle1Height = 300;
+        private int _paddle1Height = 250;
         private int _paddle2XPos;
         private int _paddle2YPos;
         private int _paddle2Width = 50;
-        private int _paddle2Height = 300;
+        private int _paddle2Height = 250;
         private int _ballXPos;
         private int _ballYPos;
         private int _ballWidth = 100;
         private int _ballHeight = 100;
+        private bool _ballMovingUp = false;
+        private bool _ballMovingDown = false;
+        private bool _ballMovingLeft = true;
+        private bool _ballMovingRight = false;
+        private Vector2 _scorePos;
+        Random _random = new Random();
         private Rectangle _paddle1Rectangle, _paddle2Rectangle, _ballRectangle;
-
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -31,12 +41,12 @@ namespace Pong
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            _paddle1XPos = 50;
-            _paddle1YPos = (_graphics.PreferredBackBufferHeight / 2);
-            _paddle2XPos = (_graphics.PreferredBackBufferWidth - 50);   
-            _paddle2YPos = (_graphics.PreferredBackBufferHeight / 2);
-            _ballXPos = (_graphics.PreferredBackBufferWidth / 2);
-            _ballYPos = (_graphics.PreferredBackBufferHeight / 2);
+            _paddle1XPos = 0;
+            _paddle1YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle1Height / 2);
+            _paddle2XPos = (_graphics.PreferredBackBufferWidth) - (_paddle2Width);   
+            _paddle2YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle2Height / 2);
+            _ballXPos = (_graphics.PreferredBackBufferWidth / 2) - (_ballWidth / 2);
+            _ballYPos = (_graphics.PreferredBackBufferHeight / 2) - (_ballHeight / 2);
         }
 
         protected override void Initialize()
@@ -53,6 +63,7 @@ namespace Pong
             _paddle1 = Content.Load<Texture2D>("ball");
             _paddle2 = Content.Load<Texture2D>("paddle1");
             _ball = Content.Load<Texture2D>("paddle2");
+            _score = Content.Load<SpriteFont>("score");
 
             _paddle1Rectangle = new Rectangle(_paddle1XPos, _paddle1YPos, _paddle1Width, _paddle1Height);
             _paddle2Rectangle = new Rectangle(_paddle1XPos, _paddle2YPos, _paddle2Width, _paddle2Height);
@@ -73,6 +84,136 @@ namespace Pong
             _ballRectangle.X = _ballXPos;
             _ballRectangle.Y = _ballYPos;
 
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+                if (_paddle1YPos > 0)
+                {
+                    _paddle1YPos -= 4;
+                }
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+                if (_paddle1YPos + _paddle1Height <= _graphics.PreferredBackBufferHeight)
+                {
+                    _paddle1YPos += 4;
+                }
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+            {
+                if (_paddle2YPos > 0)
+                {
+                    _paddle2YPos -= 4;
+                }
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Down))
+            {
+                if (_paddle2YPos + _paddle2Height <= _graphics.PreferredBackBufferHeight)
+                {
+                    _paddle2YPos += 4;
+                }
+            }
+
+            if (_ballXPos < 0 || _ballRectangle.Intersects(_paddle1Rectangle))
+            {
+                _ballMovingLeft = false;
+                _ballMovingRight = true;
+            }
+
+            if (_ballXPos > (_graphics.PreferredBackBufferWidth - _ballWidth) || _ballRectangle.Intersects(_paddle2Rectangle))
+            {
+                _ballMovingLeft = true;
+                _ballMovingRight = false;
+            }
+
+            if (_ballYPos < 0)
+            {
+                _ballMovingUp = false;
+                _ballMovingDown = true;
+            }
+
+            if (_ballYPos > (_graphics.PreferredBackBufferHeight - _ballHeight))
+            {
+                _ballMovingUp = true;
+                _ballMovingDown = false;
+            }
+
+            if (_ballMovingLeft == true)
+            {
+                _ballXPos -= 8;
+            }
+
+            if (_ballMovingRight == true)
+            {
+                _ballXPos += 8;
+            }
+
+            if (_ballMovingUp == true)
+            {
+                _ballYPos -= 4;
+            }
+
+            if (_ballMovingDown == true)
+            {
+                _ballYPos += 4;
+            }
+
+            if (_ballXPos < 0)
+            {
+                _ballXPos = (_graphics.PreferredBackBufferWidth / 2) - (_ballWidth / 2);
+                _ballYPos = (_graphics.PreferredBackBufferHeight / 2) - (_ballHeight / 2);
+                _paddle1XPos = 0;
+                _paddle1YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle1Height / 2);
+                _paddle2XPos = (_graphics.PreferredBackBufferWidth) - (_paddle2Width);
+                _paddle2YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle2Height / 2);
+                _blueScore += 1;
+                _ballMovingUp = false;
+                _ballMovingDown = false;
+            }
+
+            if (_ballXPos > (_graphics.PreferredBackBufferWidth - _ballWidth))
+            {
+                _ballXPos = (_graphics.PreferredBackBufferWidth / 2) - (_ballWidth / 2);
+                _ballYPos = (_graphics.PreferredBackBufferHeight / 2) - (_ballHeight / 2);
+                _paddle1XPos = 0;
+                _paddle1YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle1Height / 2);
+                _paddle2XPos = (_graphics.PreferredBackBufferWidth) - (_paddle2Width);
+                _paddle2YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle2Height / 2);
+                _redScore += 1;
+                _ballMovingUp = false;
+                _ballMovingDown = false;
+            }
+
+            if(_ballRectangle.Intersects(_paddle1Rectangle) && _ballMovingUp == false && _ballMovingDown == false)
+            {
+                int _randomDirection = _random.Next(1, 3);
+
+                if (_randomDirection == 1)
+                {
+                    _ballMovingUp = true;
+                }
+                if (_randomDirection == 2)
+                {
+                    _ballMovingDown = true;
+                }
+            }
+
+            if (_ballRectangle.Intersects(_paddle2Rectangle) && _ballMovingUp == false && _ballMovingDown == false)
+            {
+                int _randomDirection = _random.Next(1, 3);
+
+                if (_randomDirection == 1)
+                {
+                    _ballMovingUp = true;
+                }
+
+                if (_randomDirection == 2)
+                {
+                    _ballMovingDown = true;
+                }
+            }
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -83,9 +224,13 @@ namespace Pong
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin();
-            _spriteBatch.Draw(_paddle1, _paddle1Rectangle, Color.Whit);
-            _spriteBatch.Draw(_paddle2, _paddle2Rectangle, Color.White);
+            _spriteBatch.Draw(_paddle1, _paddle1Rectangle, Color.Red);
+            _spriteBatch.Draw(_paddle2, _paddle2Rectangle, Color.Blue);
             _spriteBatch.Draw(_ball, _ballRectangle, Color.White);
+            string _scoreText = _blueScore + " - " + _redScore;
+            Vector2 textSize = _score.MeasureString(_scoreText);
+            _scorePos = new Vector2((_graphics.PreferredBackBufferWidth / 2f) - (textSize.X / 2f), 20f);
+            _spriteBatch.DrawString(_score, _scoreText, _scorePos, Color.White);
             _spriteBatch.End();
 
             // TODO: Add your drawing code here
