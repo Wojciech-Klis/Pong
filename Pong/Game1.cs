@@ -31,6 +31,7 @@ namespace Pong
         private bool _ballMovingLeft = true;
         private bool _ballMovingRight = false;
         private Vector2 _scorePos;
+        private Color _ballColor = Color.White;
         Random _random = new Random();
         private Rectangle _paddle1Rectangle, _paddle2Rectangle, _ballRectangle;
         public Game1()
@@ -171,6 +172,7 @@ namespace Pong
                 _blueScore += 1;
                 _ballMovingUp = false;
                 _ballMovingDown = false;
+                _ballColor = Color.White;
             }
 
             if (_ballXPos > (_graphics.PreferredBackBufferWidth - _ballWidth))
@@ -184,6 +186,7 @@ namespace Pong
                 _redScore += 1;
                 _ballMovingUp = false;
                 _ballMovingDown = false;
+                _ballColor = Color.White;
             }
 
             if(_ballRectangle.Intersects(_paddle1Rectangle) && _ballMovingUp == false && _ballMovingDown == false)
@@ -214,6 +217,17 @@ namespace Pong
                     _ballMovingDown = true;
                 }
             }
+
+            if (_ballRectangle.Intersects(_paddle1Rectangle))
+            {
+                _ballColor = Color.Red;
+            }
+
+            if (_ballRectangle.Intersects(_paddle2Rectangle))
+            {
+                _ballColor = Color.Blue;
+            }
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -226,7 +240,7 @@ namespace Pong
             _spriteBatch.Begin();
             _spriteBatch.Draw(_paddle1, _paddle1Rectangle, Color.Red);
             _spriteBatch.Draw(_paddle2, _paddle2Rectangle, Color.Blue);
-            _spriteBatch.Draw(_ball, _ballRectangle, Color.White);
+            _spriteBatch.Draw(_ball, _ballRectangle, _ballColor);
             string _scoreText = _blueScore + " - " + _redScore;
             Vector2 textSize = _score.MeasureString(_scoreText);
             _scorePos = new Vector2((_graphics.PreferredBackBufferWidth / 2f) - (textSize.X / 2f), 20f);
