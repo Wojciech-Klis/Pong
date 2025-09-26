@@ -11,7 +11,8 @@ namespace Pong
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _paddle1, _paddle2, _ball;
-        private SpriteFont _score;
+        private SpriteFont _score, _win;
+        private string _winner;
         private int _blueScore = 0;
         private int _redScore = 0;
         private int _paddle1XPos;
@@ -34,7 +35,8 @@ namespace Pong
         private bool _ballMovingDown = false;
         private bool _ballMovingLeft = true;
         private bool _ballMovingRight = false;
-        private Vector2 _scorePos;
+        private bool _gameLost = false;
+        private Vector2 _scorePos, _winPos;
         private Color _ballColor = Color.White;
         Random _random = new Random();
         private Rectangle _paddle1Rectangle, _paddle2Rectangle, _ballRectangle;
@@ -69,6 +71,7 @@ namespace Pong
             _paddle2 = Content.Load<Texture2D>("paddle1");
             _ball = Content.Load<Texture2D>("paddle2");
             _score = Content.Load<SpriteFont>("score");
+            _win = Content.Load<SpriteFont>("win");
 
             _paddle1Rectangle = new Rectangle(_paddle1XPos, _paddle1YPos, _paddle1Width, _paddle1Height);
             _paddle2Rectangle = new Rectangle(_paddle1XPos, _paddle2YPos, _paddle2Width, _paddle2Height);
@@ -179,6 +182,14 @@ namespace Pong
                 _ballColor = Color.White;
                 _ballSpeedMultLR = 0;
                 _ballSpeedMultUD = 0;
+                if (_blueScore > 9)
+                {
+                    _gameLost = true;
+                    _winner = "Blue";
+                    _blueScore = 0;
+                    _redScore = 0;
+                    _gameLost = false;
+                }
             }
 
             if (_ballXPos > (_graphics.PreferredBackBufferWidth - _ballWidth))
@@ -195,6 +206,14 @@ namespace Pong
                 _ballColor = Color.White;
                 _ballSpeedMultLR = 0;
                 _ballSpeedMultUD = 0;
+                if (_redScore > 9)
+                {
+                    _gameLost = true;
+                    _winner = "Red";
+                    _blueScore = 0;
+                    _redScore = 0;
+                    _gameLost = false;
+                }
             }
 
             if(_ballRectangle.Intersects(_paddle1Rectangle) && _ballMovingUp == false && _ballMovingDown == false)
@@ -250,13 +269,24 @@ namespace Pong
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin();
-            _spriteBatch.Draw(_paddle1, _paddle1Rectangle, Color.Red);
-            _spriteBatch.Draw(_paddle2, _paddle2Rectangle, Color.Blue);
-            _spriteBatch.Draw(_ball, _ballRectangle, _ballColor);
-            string _scoreText = _blueScore + " - " + _redScore;
-            Vector2 textSize = _score.MeasureString(_scoreText);
-            _scorePos = new Vector2((_graphics.PreferredBackBufferWidth / 2f) - (textSize.X / 2f), 20f);
-            _spriteBatch.DrawString(_score, _scoreText, _scorePos, Color.White);
+            if (_gameLost == false)
+            {
+                _spriteBatch.Draw(_paddle1, _paddle1Rectangle, Color.Red);
+                _spriteBatch.Draw(_paddle2, _paddle2Rectangle, Color.Blue);
+                _spriteBatch.Draw(_ball, _ballRectangle, _ballColor);
+                string _scoreText = _blueScore + " - " + _redScore;
+                Vector2 textSize = _score.MeasureString(_scoreText);
+                _scorePos = new Vector2((_graphics.PreferredBackBufferWidth / 2f) - (textSize.X / 2f), 20f);
+                _spriteBatch.DrawString(_score, _scoreText, _scorePos, Color.White);
+            }
+
+            if (_gameLost == true)
+            {
+                string _winText = $"{_winner} Wins!";
+                Vector2 textSizeWin = _win.MeasureString(_winText);
+                _winPos = new Vector2((_graphics.PreferredBackBufferWidth / 2f) - (textSizeWin.X / 2f), (_graphics.PreferredBackBufferHeight / 2f) - (textSizeWin.Y / 2f));
+                _spriteBatch.DrawString(_win, _winText, _winPos, Color.White);
+            }
             _spriteBatch.End();
 
             // TODO: Add your drawing code here
