@@ -26,6 +26,10 @@ namespace Pong
         private int _ballYPos;
         private int _ballWidth = 100;
         private int _ballHeight = 100;
+        private int _ballSpeedUpDown = 4;
+        private int _ballSpeedLeftRight = 8;
+        private int _ballSpeedMultUD = 0;
+        private int _ballSpeedMultLR = 0;
         private bool _ballMovingUp = false;
         private bool _ballMovingDown = false;
         private bool _ballMovingLeft = true;
@@ -89,7 +93,7 @@ namespace Pong
             {
                 if (_paddle1YPos > 0)
                 {
-                    _paddle1YPos -= 4;
+                    _paddle1YPos -= 8;
                 }
             }
 
@@ -97,7 +101,7 @@ namespace Pong
             {
                 if (_paddle1YPos + _paddle1Height <= _graphics.PreferredBackBufferHeight)
                 {
-                    _paddle1YPos += 4;
+                    _paddle1YPos += 8;
                 }
             }
 
@@ -105,7 +109,7 @@ namespace Pong
             {
                 if (_paddle2YPos > 0)
                 {
-                    _paddle2YPos -= 4;
+                    _paddle2YPos -= 8;
                 }
             }
 
@@ -113,7 +117,7 @@ namespace Pong
             {
                 if (_paddle2YPos + _paddle2Height <= _graphics.PreferredBackBufferHeight)
                 {
-                    _paddle2YPos += 4;
+                    _paddle2YPos += 8;
                 }
             }
 
@@ -143,22 +147,22 @@ namespace Pong
 
             if (_ballMovingLeft == true)
             {
-                _ballXPos -= 8;
+                _ballXPos -= (_ballSpeedLeftRight + _ballSpeedMultLR);
             }
 
             if (_ballMovingRight == true)
             {
-                _ballXPos += 8;
+                _ballXPos += (_ballSpeedLeftRight + _ballSpeedMultLR);
             }
 
             if (_ballMovingUp == true)
             {
-                _ballYPos -= 4;
+                _ballYPos -= (_ballSpeedUpDown + _ballSpeedMultUD);
             }
 
             if (_ballMovingDown == true)
             {
-                _ballYPos += 4;
+                _ballYPos += (_ballSpeedUpDown + _ballSpeedMultUD);
             }
 
             if (_ballXPos < 0)
@@ -173,6 +177,8 @@ namespace Pong
                 _ballMovingUp = false;
                 _ballMovingDown = false;
                 _ballColor = Color.White;
+                _ballSpeedMultLR = 0;
+                _ballSpeedMultUD = 0;
             }
 
             if (_ballXPos > (_graphics.PreferredBackBufferWidth - _ballWidth))
@@ -187,6 +193,8 @@ namespace Pong
                 _ballMovingUp = false;
                 _ballMovingDown = false;
                 _ballColor = Color.White;
+                _ballSpeedMultLR = 0;
+                _ballSpeedMultUD = 0;
             }
 
             if(_ballRectangle.Intersects(_paddle1Rectangle) && _ballMovingUp == false && _ballMovingDown == false)
@@ -221,11 +229,15 @@ namespace Pong
             if (_ballRectangle.Intersects(_paddle1Rectangle))
             {
                 _ballColor = Color.Red;
+                _ballSpeedMultUD += 1;
+                _ballSpeedMultLR += 2;
             }
 
             if (_ballRectangle.Intersects(_paddle2Rectangle))
             {
                 _ballColor = Color.Blue;
+                _ballSpeedMultUD += 1;
+                _ballSpeedMultLR += 2;
             }
 
             // TODO: Add your update logic here
