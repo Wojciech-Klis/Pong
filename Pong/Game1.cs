@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 using static System.Formats.Asn1.AsnWriter;
 
 namespace Pong
@@ -13,6 +14,7 @@ namespace Pong
         private Texture2D _paddle1, _paddle2, _ball;
         private SpriteFont _score, _win;
         private string _winner;
+        private double _elapsed;
         private int _blueScore = 0;
         private int _redScore = 0;
         private int _paddle1XPos;
@@ -25,8 +27,8 @@ namespace Pong
         private int _paddle2Height = 250;
         private int _ballXPos;
         private int _ballYPos;
-        private int _ballWidth = 100;
-        private int _ballHeight = 100;
+        private int _ballWidth = 50;
+        private int _ballHeight = 50;
         private int _ballSpeedUpDown = 4;
         private int _ballSpeedLeftRight = 8;
         private int _ballSpeedMultUD = 0;
@@ -40,6 +42,7 @@ namespace Pong
         private Color _ballColor = Color.White;
         Random _random = new Random();
         private Rectangle _paddle1Rectangle, _paddle2Rectangle, _ballRectangle;
+        Stopwatch _stopwatch = new();
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -54,6 +57,8 @@ namespace Pong
             _paddle2YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle2Height / 2);
             _ballXPos = (_graphics.PreferredBackBufferWidth / 2) - (_ballWidth / 2);
             _ballYPos = (_graphics.PreferredBackBufferHeight / 2) - (_ballHeight / 2);
+
+            Stopwatch.StartNew();
         }
 
         protected override void Initialize()
@@ -182,14 +187,6 @@ namespace Pong
                 _ballColor = Color.White;
                 _ballSpeedMultLR = 0;
                 _ballSpeedMultUD = 0;
-                if (_blueScore > 9)
-                {
-                    _gameLost = true;
-                    _winner = "Blue";
-                    _blueScore = 0;
-                    _redScore = 0;
-                    _gameLost = false;
-                }
             }
 
             if (_ballXPos > (_graphics.PreferredBackBufferWidth - _ballWidth))
@@ -206,14 +203,6 @@ namespace Pong
                 _ballColor = Color.White;
                 _ballSpeedMultLR = 0;
                 _ballSpeedMultUD = 0;
-                if (_redScore > 9)
-                {
-                    _gameLost = true;
-                    _winner = "Red";
-                    _blueScore = 0;
-                    _redScore = 0;
-                    _gameLost = false;
-                }
             }
 
             if(_ballRectangle.Intersects(_paddle1Rectangle) && _ballMovingUp == false && _ballMovingDown == false)
@@ -259,6 +248,22 @@ namespace Pong
                 _ballSpeedMultLR += 2;
             }
 
+            if (_blueScore > 9)
+            {
+                _gameLost = true;
+                _winner = "Blue";
+                _blueScore = 0;
+                _redScore = 0;
+            }
+
+            if (_redScore > 9)
+            {
+                _gameLost = true;
+                _winner = "Red";
+                _blueScore = 0;
+                _redScore = 0;
+            }
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -286,6 +291,12 @@ namespace Pong
                 Vector2 textSizeWin = _win.MeasureString(_winText);
                 _winPos = new Vector2((_graphics.PreferredBackBufferWidth / 2f) - (textSizeWin.X / 2f), (_graphics.PreferredBackBufferHeight / 2f) - (textSizeWin.Y / 2f));
                 _spriteBatch.DrawString(_win, _winText, _winPos, Color.White);
+                _elapsed += gameTime.ElapsedGameTime.TotalSeconds;
+                if (_elapsed > 2)
+                {
+                    _gameLost = false;
+                    _elapsed = 0;
+                }
             }
             _spriteBatch.End();
 
