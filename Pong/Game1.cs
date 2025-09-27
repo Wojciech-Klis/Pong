@@ -279,7 +279,7 @@ namespace Pong
                 _spriteBatch.Draw(_paddle1, _paddle1Rectangle, Color.Red);
                 _spriteBatch.Draw(_paddle2, _paddle2Rectangle, Color.Blue);
                 _spriteBatch.Draw(_ball, _ballRectangle, _ballColor);
-                string _scoreText = _blueScore + " - " + _redScore;
+                string _scoreText = _redScore + " - " + _blueScore;
                 Vector2 textSize = _score.MeasureString(_scoreText);
                 _scorePos = new Vector2((_graphics.PreferredBackBufferWidth / 2f) - (textSize.X / 2f), 20f);
                 _spriteBatch.DrawString(_score, _scoreText, _scorePos, Color.White);
@@ -296,6 +296,31 @@ namespace Pong
                 {
                     _gameLost = false;
                     _elapsed = 0;
+                    _ballXPos = (_graphics.PreferredBackBufferWidth / 2) - (_ballWidth / 2);
+                    _ballYPos = (_graphics.PreferredBackBufferHeight / 2) - (_ballHeight / 2);
+                    _paddle1XPos = 0;
+                    _paddle1YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle1Height / 2);
+                    _paddle2XPos = (_graphics.PreferredBackBufferWidth) - (_paddle2Width);
+                    _paddle2YPos = (_graphics.PreferredBackBufferHeight / 2) - (_paddle2Height / 2);
+                    _redScore = 0;
+                    _blueScore = 0;
+                    _ballColor = Color.White;
+                    _ballSpeedMultLR = 0;
+                    _ballSpeedMultUD = 0;
+                    if (_winner == "Red")
+                    {
+                        _ballMovingUp = false;
+                        _ballMovingDown = false;
+                        _ballMovingLeft = false;
+                        _ballMovingRight = true;
+                    }
+                    if (_winner == "Blue")
+                    {
+                        _ballMovingUp = false;
+                        _ballMovingDown = false;
+                        _ballMovingLeft = true;
+                        _ballMovingRight = false;
+                    }
                 }
             }
             _spriteBatch.End();
