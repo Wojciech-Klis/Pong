@@ -13,8 +13,11 @@ namespace Pong
         private SpriteBatch _spriteBatch;
         private Texture2D _paddle1, _paddle2, _ball;
         private SpriteFont _score, _win;
+
         private string _winner;
+
         private double _elapsed;
+
         private int _blueScore = 0;
         private int _redScore = 0;
         private int _paddle1XPos;
@@ -25,6 +28,7 @@ namespace Pong
         private int _paddle2YPos;
         private int _paddle2Width = 50;
         private int _paddle2Height = 250;
+        private int _paddleSpeed = 12;
         private int _ballXPos;
         private int _ballYPos;
         private int _ballWidth = 50;
@@ -33,16 +37,20 @@ namespace Pong
         private int _ballSpeedLeftRight = 8;
         private int _ballSpeedMultUD = 0;
         private int _ballSpeedMultLR = 0;
+
         private bool _ballMovingUp = false;
         private bool _ballMovingDown = false;
         private bool _ballMovingLeft = true;
         private bool _ballMovingRight = false;
         private bool _gameLost = false;
+
         private Vector2 _scorePos, _winPos;
         private Color _ballColor = Color.White;
-        Random _random = new Random();
         private Rectangle _paddle1Rectangle, _paddle2Rectangle, _ballRectangle;
+
         Stopwatch _stopwatch = new();
+        Random _random = new Random();
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -101,7 +109,7 @@ namespace Pong
             {
                 if (_paddle1YPos > 0)
                 {
-                    _paddle1YPos -= 8;
+                    _paddle1YPos -= _paddleSpeed;
                 }
             }
 
@@ -109,7 +117,7 @@ namespace Pong
             {
                 if (_paddle1YPos + _paddle1Height <= _graphics.PreferredBackBufferHeight)
                 {
-                    _paddle1YPos += 8;
+                    _paddle1YPos += _paddleSpeed;
                 }
             }
 
@@ -117,7 +125,7 @@ namespace Pong
             {
                 if (_paddle2YPos > 0)
                 {
-                    _paddle2YPos -= 8;
+                    _paddle2YPos -= _paddleSpeed;
                 }
             }
 
@@ -125,7 +133,7 @@ namespace Pong
             {
                 if (_paddle2YPos + _paddle2Height <= _graphics.PreferredBackBufferHeight)
                 {
-                    _paddle2YPos += 8;
+                    _paddle2YPos += _paddleSpeed;
                 }
             }
 
@@ -237,15 +245,23 @@ namespace Pong
             if (_ballRectangle.Intersects(_paddle1Rectangle))
             {
                 _ballColor = Color.Red;
-                _ballSpeedMultUD += 1;
-                _ballSpeedMultLR += 2;
+
+                if (_ballSpeedMultUD <= 12 && _ballSpeedMultLR <= 24)
+                {
+                    _ballSpeedMultUD += 1;
+                    _ballSpeedMultLR += 2;
+                }
             }
 
             if (_ballRectangle.Intersects(_paddle2Rectangle))
             {
                 _ballColor = Color.Blue;
-                _ballSpeedMultUD += 1;
-                _ballSpeedMultLR += 2;
+
+                if (_ballSpeedMultUD <= 12 && _ballSpeedMultLR <= 24)
+                {
+                    _ballSpeedMultUD += 1;
+                    _ballSpeedMultLR += 2;
+                }
             }
 
             if (_blueScore > 9)
@@ -292,6 +308,7 @@ namespace Pong
                 _winPos = new Vector2((_graphics.PreferredBackBufferWidth / 2f) - (textSizeWin.X / 2f), (_graphics.PreferredBackBufferHeight / 2f) - (textSizeWin.Y / 2f));
                 _spriteBatch.DrawString(_win, _winText, _winPos, Color.White);
                 _elapsed += gameTime.ElapsedGameTime.TotalSeconds;
+
                 if (_elapsed > 2)
                 {
                     _gameLost = false;
@@ -307,6 +324,7 @@ namespace Pong
                     _ballColor = Color.White;
                     _ballSpeedMultLR = 0;
                     _ballSpeedMultUD = 0;
+
                     if (_winner == "Red")
                     {
                         _ballMovingUp = false;
@@ -314,6 +332,7 @@ namespace Pong
                         _ballMovingLeft = false;
                         _ballMovingRight = true;
                     }
+
                     if (_winner == "Blue")
                     {
                         _ballMovingUp = false;
